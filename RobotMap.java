@@ -17,9 +17,9 @@ public class RobotMap extends Robot{
 	public static final int LIFT_WHEEL_RIGHT = 7;
 	
 	public static final int LIFT_FRONT_LEFT = 10;
-	public static final int LIFT_FRONT_RIGHT = 20;
-	public static final int LIFT_BACK_LEFT = 30;
-	public static final int LIFT_BACK_RIGHT = 40;
+	public static final int LIFT_FRONT_RIGHT = 11;
+	public static final int LIFT_BACK_LEFT = 12;
+	public static final int LIFT_BACK_RIGHT = 13;
 
 	// imagine having a robot that worked
 	// -> this comment was made by the 6905 gang
