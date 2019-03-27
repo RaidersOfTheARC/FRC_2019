@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import java.util.concurrent.TimeUnit;
 import com.ctre.phoenix.motorcontrol.can.*;
+import edu.wpi.first.wpilibj.drive.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 /**
@@ -26,10 +27,11 @@ public class Robot extends IterativeRobot {
 	private static final String CUSTOM_AUTO = "Sandstorm";
 	private static final long AUTO_DURATION = 7000;
 	private SendableChooser<String> chooser = new SendableChooser<>();
-	private Joystick driveStick, strafeStick;
+	private Joystick driveStick;
 	private TalonSRX liftFL, liftFR, liftBL, liftBR;
 	private WPI_VictorSPX liftWheelR, liftWheelL, hatchMotor;
-	private DriveTrain drive;
+	private WPI_VictorSPX driveFL, driveFR, driveBL, driveBR;
+	private MecanumDrive drive;
 	private Compressor cpress;
 	private Solenoid solIn, solOut;
 	private Lift lift;
@@ -46,13 +48,9 @@ public class Robot extends IterativeRobot {
 	public void robotInit() {
 		// joystick for the diifferential tank drive
 		driveStick = new Joystick(0);
-
-		// joystick for the custom strafe drive
-		// -> in progress?
-		strafeStick = new Joystick(1);
-
+		
 		// xbox controller for the different mechanisms of the robot
-		toolOp = new XboxController(2);
+		toolOp = new XboxController(1);
 
 		// solIn -> the solenoid valve that, when active, pulls in the actuator
 		// solOut -> the solenoid valve that, when active, pushes out the actuator
@@ -71,14 +69,19 @@ public class Robot extends IterativeRobot {
 		Channel.setChannel(false, false);
 		*/
 		
-		drive = new DriveTrain();
+		driveFL = new WPI_VictorSPX(RobotMap.DRIVETRAIN_LEFT_FRONT_VICTOR);
+		driveFR = new WPI_VictorSPX(RobotMap.DRIVETRAIN_RIGHT_FRONT_VICTOR);
+		driveBL = new WPI_VictorSPX(RobotMap.DRIVETRAIN_LEFT_BACK_VICTOR);
+		driveBR = new WPI_VictorSPX(RobotMap.DRIVETRAIN_RIGHT_BACK_VICTOR);
+		
+		drive = new MecanumDrive(driveFL, driveBL, driveFR, driveFL);
 		lift = new Lift();
 
 		liftWheelL = new WPI_VictorSPX(RobotMap.LIFT_WHEEL_LEFT);
 		liftWheelR = new WPI_VictorSPX(RobotMap.LIFT_WHEEL_RIGHT);
 		
 		liftFL = new TalonSRX(RobotMap.LIFT_FRONT_LEFT);
-    	liftFR = new TalonSRX(RobotMap.LIFT_FRONT_RIGHT);
+    		liftFR = new TalonSRX(RobotMap.LIFT_FRONT_RIGHT);
    	 	liftBL = new TalonSRX(RobotMap.LIFT_BACK_LEFT);
 		liftBR = new TalonSRX(RobotMap.LIFT_BACK_RIGHT);
 		
@@ -142,7 +145,7 @@ public class Robot extends IterativeRobot {
 	@Override
 	public void teleopPeriodic() {
 		// set up the driver joystick for differential
-		drive.getDrive().arcadeDrive(driveStick.getY(), driveStick.getX());
+		drive.driveCartesian(driveStick.getY(), driveStick.getX(), driveStick.getZ());
 
 		// loop through the toolOp and check for the right stick
 		// -> commnands for the Nidec
@@ -155,11 +158,6 @@ public class Robot extends IterativeRobot {
 		liftFR.set(ControlMode.PercentOutput, toolOp.getTriggerAxis(GenericHID.Hand.kLeft));
 		liftBL.set(ControlMode.PercentOutput, toolOp.getTriggerAxis(GenericHID.Hand.kRight));
 		liftBR.set(ControlMode.PercentOutput, toolOp.getTriggerAxis(GenericHID.Hand.kRight));
-
-		
-
-		// set up the driver joystick for strafing
-		drive.strafeDrive(strafeStick.getX(), strafeStick.getY());
 		
 		/*
 		// call toolOp commands for various motors
